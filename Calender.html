@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Calender</title>
+    <style>
+        * {
+            -moz-user-select: -moz-none;
+            -moz-user-select: none;
+            -o-user-select:none;
+            -khtml-user-select:none;
+            -webkit-user-select:none;
+            -ms-user-select:none;
+            user-select:none;
+        }
+        .calender {
+            display: inline-block;
+        }
+        .calender_btn {
+            display: inline-block;
+        }
+        .calender_btn a{
+            width: 60px;
+            height: 25px;
+            line-height: 25px;
+            display: inline-block;
+            border: 1px solid darkgray;
+            border-radius: 5px;
+            box-sizing: border-box;
+            text-align: center;
+            cursor: default;
+        }
+        .calender_btn a:active {
+            background-color: lightgray;
+        }
+        .calender_now {
+            width: 110px;
+            display: inline-block;
+            text-align: center;
+            text-decoration: underline;
+        }
+        th, td {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            position: relative;
+            cursor: default;
+        }
+        .calender_thisMonth {
+            color: darkblue;
+        }
+        .calender_otherMonth {
+            color: grey;
+        }
+        .the_today {
+            background-color: blanchedalmond;
+        }
+        .calender_selected {
+            border: 1px solid orange;
+            box-sizing: border-box;
+        }
+        #memory_box {
+            width: 225px;
+            border: 1px gainsboro solid;
+        }
+        #calender_title {
+            width: 170px;
+        }
+        #calender_detail {
+            text-decoration: underline;
+            word-wrap: break-word;
+            word-break: break-all;
+            font-size: 16px;
+            border: 1px solid gainsboro;
+            resize: none;
+            width: 200px;
+            margin: 0 10px 10px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="calender" class="calender">
+        <div class="calender_head">
+            <div class="calender_btn"><a id="calender_prev">prev</a></div>
+            <div class="calender_now" id="calender_now"></div>
+            <div class="calender_btn"><a id="calender_next">next</a></div>
+        </div>
+        <div class="calender_body">
+            <table>
+                <thead>
+                <tr>
+                    <th>一</th>
+                    <th>二</th>
+                    <th>三</th>
+                    <th>四</th>
+                    <th>五</th>
+                    <th>六</th>
+                    <th>日</th>
+                </tr>
+                </thead>
+                <tbody id="calender_table" class="aa bb cc dd">
+                <tr>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+                <tr>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="memory_box">
+        <br />
+        <laber for="calender_title">title:</laber>
+        <input id="calender_title" type="text"><br /><br />
+        <textarea id="calender_detail" cols="25" rows="4">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </textarea>
+    </div>
+
+    <script>
+        var local_object = {};
+        //声明日期变量以及年月日
+        var calender_today = new Date(),
+                calender_year = calender_today.getFullYear(),
+                calender_month = calender_today.getMonth() + 1,
+                calender_date = calender_today.getDate(),
+                calender_day = calender_today.getDay();
+        //定义两个按钮
+        var calender_prev = document.getElementById("calender_prev"),
+                calender_next = document.getElementById("calender_next"),
+                calender_displayYear = calender_year,
+                calender_displayMonth = calender_month;
+        //取得td标签的集合,以及其长度
+        var calender_table = document.getElementById("calender_table"),
+                calender_tds = calender_table.getElementsByTagName("td"),
+                len = calender_tds.length,
+                i;
+        //添加hasClass方法
+        Object.prototype["hasClass"] = function(the_class){
+            var class_array = this.className.split(" ");
+            if (class_array.indexOf(the_class) === -1){
+                return false;
+            } else {
+                return true;
+            }
+        };
+        //添加addClass方法
+        Object.prototype["addClass"] = function(new_class){
+            var class_array = this.className.split(" ");
+            if (class_array.indexOf(new_class) === -1){
+                class_array.push(new_class);
+                this.className = class_array.join(" ")
+            }
+        };
+        //添加removeClass方法
+        Object.prototype["removeClass"] = function(the_class){
+            var class_array = this.className.split(" "),
+                    indexOf_array = class_array.indexOf(the_class);
+            if (indexOf_array > -1){
+                class_array.splice(indexOf_array, 1);
+                this.className = class_array.join(" ")
+            }
+        };
+
+        //突出显示今天在日历中的位置
+        function be_today(){
+            for (var i = 0; i < len; i++){
+                if (calender_tds[i].hasClass("the_today")){
+                    calender_tds[i].removeClass("the_today")
+                }
+            }
+        }
+        //显示日期
+        function calender_display(){
+            //定义当月第一天
+            var calender_firstDate = new Date(calender_displayYear, calender_displayMonth - 1, 1);
+            //当年份变化时,正确更新当前年份月份和选中年份月份
+            function updateMonth(){
+                if (calender_displayMonth == 0){
+                    calender_displayMonth = 12;
+                    calender_displayYear -= 1;
+                }
+                if (calender_displayMonth == 13){
+                    calender_displayMonth = 1;
+                    calender_displayYear += 1;
+                }
+
+                if (local_object.calender_monthNumber){
+
+                    if (local_object.calender_monthNumber == 0){
+                        local_object.calender_monthNumber = 12;
+                        local_object.calender_yearNumber -= 1;
+                    }
+                    if (local_object.calender_monthNumber == 13){
+                        local_object.calender_monthNumber = 1;
+                        local_object.calender_yearNumber += 1;
+                    }
+                }
+            }
+
+            updateMonth();
+
+            //向calender_now中填充日期
+            document.getElementById("calender_now").innerHTML = calender_displayYear + "-" + calender_displayMonth;
+
+            be_today();
+
+            //依次向td中填充日期
+            for (i = 0; i < len; i++){
+                var calender_theDate = new Date(calender_displayYear, calender_displayMonth - 1, i + 2 - calender_firstDate.getDay()),
+                        calender_theDay = calender_theDate.getDate(),
+                        calender_theTd = calender_tds[i];
+                calender_theTd.innerHTML = calender_theDay;
+                //向每个td添加正确的class
+                if (calender_theDate.getMonth() == calender_displayMonth - 1){
+                    calender_theTd.removeClass("calender_otherMonth");
+                    calender_theTd.addClass("calender_thisMonth");
+                } else {
+                    calender_theTd.removeClass("calender_thisMonth");
+                    calender_theTd.addClass("calender_otherMonth");
+                    if (calender_theDate.getMonth() < calender_displayMonth - 1){
+                        calender_theTd.addClass("calender_prevDays")
+                    } else if (calender_theDate.getMonth() > calender_displayMonth - 1){
+                        calender_theTd.addClass("calender_nextDays")
+                    }
+                }
+
+                if (local_object.selected_number != 1){
+
+                    if (calender_theDate.getFullYear() == calender_year){
+                        if (calender_theDate.getMonth() == calender_today.getMonth()){
+                            if (calender_theDate.getDate() == calender_date){
+                                calender_theTd.addClass("the_today");
+                                local_object.calender_yearNumber = calender_year;
+                                local_object.calender_monthNumber = calender_month;
+                                local_object.calender_dateNumber = calender_date;
+                            }
+                        }
+                    }
+                }
+            }
+
+            calender_select()
+        }
+
+
+        calender_display();
+
+        function calender_prevMonth(){
+            calender_displayMonth -= 1;
+
+            calender_display();
+        }
+
+        function calender_nextMonth(){
+            calender_displayMonth += 1;
+
+            calender_display();
+        }
+
+        function calender_unSelect(){
+            for (var i = 0; i < len; i++){
+                calender_tds[i].removeClass("calender_selected")
+            }
+        }
+
+        function calender_select(){
+            calender_unSelect();
+
+            if (calender_displayYear == local_object.calender_yearNumber){
+                if (calender_displayMonth == local_object.calender_monthNumber){
+                    var calender_thisMonth = document.getElementsByClassName("calender_thisMonth"),
+                            len_thisMonth = calender_thisMonth.length;
+
+                    for (var i = 0; i < len_thisMonth; i++){
+
+                        var theTd_thisMonth = calender_thisMonth[i];
+                        if (theTd_thisMonth.innerHTML == local_object.calender_dateNumber){
+                            theTd_thisMonth.addClass("calender_selected");
+                            local_object.selected_number = 1
+                        }
+                    }
+                }
+            }
+        }
+
+        calender_prev.onclick = calender_prevMonth;
+        calender_next.onclick = calender_nextMonth;
+
+        calender_table.onclick = function(event){
+
+            if (event.target.hasClass("calender_thisMonth")){
+                calender_unSelect();
+                event.target.addClass("calender_selected");
+                local_object.calender_yearNumber = calender_displayYear;
+                local_object.calender_monthNumber = calender_displayMonth;
+                local_object.calender_dateNumber = event.target.innerHTML
+            } else {
+                if (event.target.hasClass("calender_nextDays")){
+
+                    local_object.calender_monthNumber = calender_displayMonth + 1;
+                    local_object.calender_dateNumber = event.target.innerHTML;
+
+                    calender_nextMonth();
+
+                } else if (event.target.hasClass("calender_prevDays")){
+
+                    local_object.calender_monthNumber = calender_displayMonth - 1;
+                    local_object.calender_dateNumber = event.target.innerHTML;
+
+                    calender_prevMonth();
+
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
